@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve frontend",
-    "build": "ng build frontend",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "frontend:install": "npm ci",
+    "frontend:start": "ng serve frontend",
+    "backend:install": "cd projects/backend && pip install -r requirements.txt",
+    "backend:start": "cd projects/backend && python app.py"
   },
   "private": true,
   "dependencies": {
