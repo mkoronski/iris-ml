@@ -1,70 +1,65 @@
-<div fxLayoutAlign="center center" fxLayout="column">
-  <h1>Iris Model - Example</h1>
-
-  <div class="home__training">
-    <h3>Train Classification Model (Support Vector Machine)</h3>
-    <mat-card fxLayoutAlign="center center" fxLayout="column">
-      <h4>Set Parameter for Model Training</h4>
-      <mat-form-field appearance="fill">
+<h4 class="space">Iris Model</h4>
+<mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
+  <mat-step [stepControl]="model" >
+    <form [formGroup]="model">
+      <ng-template matStepLabel>Train Classification Model: {{(model.valueChanges | async)?.cparam || model.controls.cparam.value}}</ng-template>
+      <mat-form-field>
         <mat-label>C Parameter</mat-label>
-        <input matInput placeholder="C Parameter" [(ngModel)]="svcParameters.C">
+        <input matInput type="number" formControlName="cparam" required>
       </mat-form-field>
-      <button mat-raised-button (click)="trainModel()">Train model</button>
-    </mat-card>
-
-    <div *ngIf="svcResult"
-         fxLayoutAlign="center center"
-         fxLayout="column">
-      <h4>Training Accuracy</h4>
-      <ngx-charts-linear-gauge
-        *ngIf="svcResult?.accuracy"
-        [view]="[300, 100]"
-        [value]="svcResult.accuracy || 0"
-        [scheme]="colorScheme"
-        [min]="0"
-        [max]="100"
-        [units]="'% accuracy'">
-      </ngx-charts-linear-gauge>
-    </div>
-  </div>
-
-  <div class="home__prediction"
-       fxLayoutAlign="center center"
-       fxLayout="column">
-    <h3>Predict Iris classes</h3>
-
-    <mat-card fxLayoutAlign="center center" fxLayout="column">
-      <h4>Define Iris</h4>
-      <div fxLayout="row">
-        <mat-form-field appearance="fill">
-          <mat-label>Sepal width</mat-label>
-          <input matInput placeholder="Sepal width" [(ngModel)]="iris.sepalWidth">
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Sepal length</mat-label>
-          <input matInput placeholder="Sepal length" [(ngModel)]="iris.sepalLength">
-        </mat-form-field>
-      </div>
-      <div fxLayout="row">
-        <mat-form-field appearance="fill">
-          <mat-label>Petal width</mat-label>
-          <input matInput placeholder="Petal width" [(ngModel)]="iris.petalWidth">
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Petal length</mat-label>
-          <input matInput placeholder="Petal length" [(ngModel)]="iris.petalLength">
-        </mat-form-field>
-      </div>
       <div>
-        <button mat-raised-button (click)="predictIris()">Predict iris</button>
+        <button mat-button matStepperNext (click)="trainModel()">Save and train model</button>
       </div>
-    </mat-card>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Training Accuracy: {{ svcResult?.accuracy ? svcResult?.accuracy || 0 : '?'}} %</ng-template>
+    <div class="space">
+      <mat-label *ngIf="svcResult?.accuracy; else loading">{{svcResult?.accuracy || 0}} % accuracy</mat-label>
+      <ng-template #loading>loading...</ng-template>
+      <div>
+        <button mat-button matStepperPrevious>Back</button><button mat-button matStepperNext>Accept</button>
+      </div>
 
-    <div *ngIf="probabilityPredictions"
-         fxLayoutAlign="center center"
-         fxLayout="column"
-         class="home__chart-container">
-      <h4>Prediction Result</h4>
+    </div>
+  </mat-step>
+
+  <mat-step [stepControl]="iris">
+    <form [formGroup]="iris">
+      <ng-template matStepLabel>Predict Iris classes</ng-template>
+      <div class="space">
+        <mat-label>Define Iris</mat-label>
+        <div fxLayout="row ">
+          <mat-form-field appearance="fill">
+            <mat-label>Sepal width</mat-label>
+            <input matInput placeholder="Sepal width" formControlName="sepalWidth">
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Sepal length</mat-label>
+            <input matInput placeholder="Sepal length" formControlName="sepalLength">
+          </mat-form-field>
+        </div>
+        <div fxLayout="row">
+          <mat-form-field appearance="fill">
+            <mat-label>Petal width</mat-label>
+            <input matInput placeholder="Petal width" formControlName="petalWidth">
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Petal length</mat-label>
+            <input matInput placeholder="Petal length" formControlName="petalLength">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext (click)="predictIris()">Predict iris</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Prediction Result</ng-template>
+    <div class="space">
       <ngx-charts-pie-chart
         [results]="probabilityPredictions"
         [scheme]="colorScheme"
@@ -72,5 +67,10 @@
         [legend]="true">
       </ngx-charts-pie-chart>
     </div>
-  </div>
-</div>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="reset(); stepper.reset()">Reset</button>
+    </div>
+  </mat-step>
+</mat-stepper>
+

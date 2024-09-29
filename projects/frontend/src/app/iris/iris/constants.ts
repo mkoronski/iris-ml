@@ -1,8 +1,8 @@
-export class Iris {
-    sepalLength = 5.0;
-    sepalWidth = 3.5;
-    petalLength = 2.5;
-    petalWidth = 1.2;
+export interface Iris {
+    sepalLength: number,
+    sepalWidth: number,
+    petalLength: number,
+    petalWidth: number
 }
 
 export class ProbabilityPrediction {
@@ -10,10 +10,10 @@ export class ProbabilityPrediction {
     value: number | undefined;
 }
 
-export class SVCParameters {
-    C = 2.0;
+export interface SVCParameters {
+    C: number;
 }
 
-export class SVCResult {
+export interface SVCResult {
     accuracy: number | undefined;
 }

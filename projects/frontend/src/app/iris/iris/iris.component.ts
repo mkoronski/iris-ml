@@ -1,7 +1,7 @@
-import {Component} from '@angular/core';
-import {FormsModule} from "@angular/forms";
+import {Component, inject} from '@angular/core';
+import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {CommonModule} from "@angular/common";
-import {Iris, ProbabilityPrediction, SVCParameters, SVCResult} from "./constants";
+import {Iris, ProbabilityPrediction, SVCResult} from "./constants";
 import {IrisService} from "./iris.service";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {MatInputModule} from "@angular/material/input";
@@ -9,6 +9,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatCardModule} from "@angular/material/card";
 import {MatButtonModule} from "@angular/material/button";
 import {Color, NgxChartsModule, ScaleType} from "@swimlane/ngx-charts";
+import {MatStepperModule} from "@angular/material/stepper";
 
 @Component({
   selector: 'app-iris',
@@ -20,16 +21,31 @@ import {Color, NgxChartsModule, ScaleType} from "@swimlane/ngx-charts";
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatStepperModule,
     FlexLayoutModule,
+    ReactiveFormsModule,
     NgxChartsModule
   ],
   templateUrl: './iris.component.html',
   styleUrl: './iris.component.css'
 })
 export class IrisComponent {
-  public svcParameters: SVCParameters = new SVCParameters();
+  private _formBuilder = inject(FormBuilder);
+
+  model = this._formBuilder.group({
+    cparam: ['2', Validators.required],
+  });
+  iris = this._formBuilder.group({
+    sepalLength: ['5.0', Validators.required],
+    sepalWidth: ['3.5', Validators.required],
+    petalLength: ['2.5', Validators.required],
+    petalWidth: ['1.2', Validators.required],
+  });
+  isLinear = false;
+
+
+
   public svcResult: SVCResult | undefined;
-  public iris: Iris = new Iris();
   public probabilityPredictions: ProbabilityPrediction[] | undefined;
 
   // graph styling
@@ -43,14 +59,30 @@ export class IrisComponent {
   constructor(private irisService: IrisService) {
   }
 
+  public reset() {
+    this.svcResult = undefined;
+  }
+
   public trainModel() {
-    this.irisService.trainModel(this.svcParameters).subscribe((svcResult) => {
+    const value = this.model.value;
+
+
+    this.irisService.trainModel({
+      C: Number(value.cparam)
+    }).subscribe((svcResult) => {
       this.svcResult = svcResult;
     });
   }
 
   public predictIris() {
-    this.irisService.predictIris(this.iris).subscribe((probabilityPredictions) => {
+    const iris: Iris = {
+      sepalLength: Number(this.iris.value.sepalLength),
+      petalWidth: Number(this.iris.value.petalWidth),
+      petalLength: Number(this.iris.value.petalLength),
+      sepalWidth: Number(this.iris.value.sepalWidth),
+    }
+
+    this.irisService.predictIris(iris).subscribe((probabilityPredictions) => {
       this.probabilityPredictions = probabilityPredictions;
     });
   }
